@@ -12,25 +12,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 await chrome.tabs.update(tabs[0].id, { url: links[counter] });
 
                 await new Promise(resolve => setTimeout(resolve, 10000));
-                if (!flag) {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'click' }, function (response) {
-                        if (chrome.runtime.lastError) {
-                            console.error("Error message:", chrome.runtime.lastError.message)
-                        } else {
-                            console.log("Retrival successfully")
-                        }
-                    });
-                    flag = true;
-                }
-
-                // setTimeout(() => {
-                await chrome.tabs.sendMessage(tabs[0].id, { action: 'getProfile' }, function (response) {
-                    console.log(response.links, "response----->");
-                    send_data(response.links);
+                // if (!flag) {
+                chrome.tabs.sendMessage(tabs[0].id, { action: 'click' }, function (response) {
+                    if (chrome.runtime.lastError) {
+                        console.error("Error message:", chrome.runtime.lastError.message)
+                    } else {
+                        console.log("Retrival successfully")
+                    }
                 });
+                //     flag = true;
+                // }
 
-                // }, 12000)
+                await new Promise(getProfile => setTimeout(getProfile, 110000));
+                // setTimeout(() => {
+                chrome.tabs.sendMessage(tabs[0].id, { action: 'getProfile' }, function (response) {
+                    console.log(response.links, "response----->");
+                    send_data(response.links, links[counter], counter);
+                });
+                // }, 110000)
                 counter++;
+                console.log(counter, "counter--->")
 
                 if (counter >= links.length) {
                     console.log("All links processed.");
@@ -39,13 +40,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }
             }
             Action();
-            const intervalId = setInterval(Action, 20000)
+            const intervalId = setInterval(Action, 120000)
         });
     }
 });
 
-function send_data(data) {
+function send_data(links, companyUrl, counter) {
     const server_url = 'https://wise-top-labrador.ngrok-free.app/save';
+    const data = {
+        links: links,
+        companyUrl: companyUrl,
+        counter: counter
+    }
 
     fetch(server_url, {
         method: 'POST',

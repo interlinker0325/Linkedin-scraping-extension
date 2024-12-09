@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log('Counter:', counter);
 
             // Stop the interval after 5 iterations
-            if (counter >= 10) {
+            if (counter >= 100) {
                 clearInterval(intervalId);
                 console.log('Interval stopped after 5 iterations');
             }
